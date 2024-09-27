@@ -8,10 +8,13 @@
 <body>
     <h1>Partidos de Fútbol</h1>
 
+    <!-- Botón de exportación -->
+    <button id="export-btn" disabled>Ver Partido Seleccionado</button>
+    
     <!-- Widget de API-Football -->
     <div id="wg-api-football-games"
         data-host="api-football-v1.p.rapidapi.com"
-        data-key="4809c7f7a3msh08a90eff7695782p1fc9c7jsn8deb488de5dc"   <!-- Aquí solo va la API Key -->
+        data-key="4809c7f7a3msh08a90eff7695782p1fc9c7jsn8deb488de5dc"  <!-- Aquí solo va la API Key -->
         data-date=""  <!-- Deja vacío para mostrar partidos del día actual-->
         data-league="39"  <!-- Premier League -->
         data-season="2023"  <!-- Temporada 2023 -->
@@ -24,10 +27,58 @@
         data-modal-standings="true"
         data-modal-show-logos="true">
     </div>
+    <h2>Detalles del Partido</h2>
+    <div id="wg-api-football-game"
+        data-host="api-football-v1.p.rapidapi.com"
+        data-key="4809c7f7a3msh08a90eff7695782p1fc9c7jsn8deb488de5dc"  <!-- Aquí va tu API Key -->
+        data-id=""  <!-- ID del partido específico -->
+        data-theme=""  <!-- Deja vacío para el tema predeterminado -->
+        data-refresh="15"  <!-- Refresca los datos cada 15 segundos -->
+        data-show-errors="false"
+        data-show-logos="true">
+    </div>
 
-    <script
-        type="module"
-        src="https://widgets.api-sports.io/2.0.3/widgets.js">
+    <!-- Widget de clasificación (Standings) -->
+    <h2>Clasificación de la Liga</h2>
+    <div id="wg-api-football-standings"
+        data-host="api-football-v1.p.rapidapi.com"
+        data-key="4809c7f7a3msh08a90eff7695782p1fc9c7jsn8deb488de5dc"  <!-- Aquí va tu API Key -->
+        data-league=""  <!-- ID de la liga (Premier League es 39) -->
+        data-team=""  <!-- Puedes dejarlo vacío si no quieres filtrar por equipo -->
+        data-season="2024"  <!-- Temporada 2023 -->
+        data-theme=""  <!-- Deja vacío para el tema predeterminado -->
+        data-show-errors="false"
+        data-show-logos="true">
+    </div>
+
+
+
+    <!-- Script para manejar la redirección y mostrar los datos en una nueva página -->
+    <script>
+        let selectedGameId = null;
+
+        // Capturar evento cuando se selecciona un partido
+        document.getElementById('wg-api-football-games').addEventListener('click', function(event) {
+            const selectedMatch = event.target.closest('[data-id]'); // Captura el partido seleccionado
+            if (selectedMatch) {
+                selectedGameId = selectedMatch.getAttribute('data-id'); // ID del partido seleccionado
+                console.log("Partido seleccionado ID:", selectedGameId);
+                document.getElementById('export-btn').disabled = false; // Habilita el botón de exportación
+            }
+        });
+
+        // Función para redirigir a una nueva página con los detalles del partido en JSON
+        document.getElementById('export-btn').addEventListener('click', function() {
+            if (!selectedGameId) {
+                alert("Por favor selecciona un partido.");
+                return;
+            }
+
+            // Redirigir a una nueva página que muestre los detalles del partido en formato JSON
+            window.open(`/partido/${selectedGameId}`, '_blank');
+        });
     </script>
+    <script type="module" src="https://widgets.api-sports.io/2.0.3/widgets.js"></script>
+
 </body>
 </html>
