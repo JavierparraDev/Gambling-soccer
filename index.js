@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const session = require('express-session');
 
 require('dotenv').config(); // Para leer las variables del archivo .env
 
@@ -16,6 +17,14 @@ app.use(express.json());
 
 // Middleware para servir archivos estáticos si es necesario (CSS, JS adicionales)
 app.use(express.static('public'));
+
+// Configurar el middleware de sesión
+app.use(session({
+  secret: 'your-secret-key', // Cambia 'your-secret-key' por una clave secreta
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Asegúrate de que `secure` esté en `false` para pruebas locales
+}));
 
 // Conexión a la base de datos MongoDB (damian tiene que usar esto*)
 mongoose.connect(process.env.MONGO_URI, {
@@ -43,6 +52,16 @@ app.get('/widget', (req, res) => {
 // Ruta para servir el formulario de registro de usuarios
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+
+// Ruta para servir el formulario de inicio de sesión
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+// Ruta para servir la vista de recarga de saldo
+app.get('/recargar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'recargar.html'));
 });
 
 // Iniciar el servidor
