@@ -43,3 +43,19 @@ exports.getTeamStatistics = async (teamId, season, leagueId) => {
     throw error;
   }
 };
+// Función para obtener estadísticas de un partido
+exports.getFixtureStatistics = async (fixtureId, teamId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/fixtures/statistics`, {
+      headers: headers,
+      params: {
+        fixture: fixtureId,
+        team: teamId
+      }
+    });
+    return response.data.response;
+  } catch (error) {
+    console.error('Error obteniendo estadísticas del fixture:', error);
+    throw error;
+  }
+};

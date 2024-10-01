@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recargar Saldo</title>
+</head>
+<body>
+    <h1>Recargar Saldo</h1>
+    <form id="recargarForm">
+        <label for="monto">Monto a ingresar:</label>
+        <input type="number" id="monto" name="monto" min="1" required><br><br>
+
+        <label for="metodo">Método de pago:</label>
+        <select id="metodo" name="metodo" required>
+            <option value="">Selecciona un método</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="cupon">Cupón</option>
+            <option value="pse">PSE</option>
+        </select><br><br>
+
+        <!-- Campos para Tarjeta -->
+        <div id="tarjetaCampos" style="display: none;">
+            <label for="numeroTarjeta">Número de Tarjeta:</label>
+            <input type="text" id="numeroTarjeta" name="numeroTarjeta"><br><br>
+            <label for="fechaVencimiento">Fecha de Vencimiento:</label>
+            <input type="text" id="fechaVencimiento" name="fechaVencimiento"><br><br>
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv"><br><br>
+        </div>
+
+        <!-- Campos para Cupón -->
+        <div id="cuponCampos" style="display: none;">
+            <p>Tu código de cupón es: <strong>CUPON12345</strong></p>
+            <p>Utiliza este código en corresponsales para pagar.</p>
+        </div>
+
+        <!-- Campos para PSE -->
+        <div id="pseCampos" style="display: none;">
+            <label for="banco">Banco:</label>
+            <input type="text" id="banco" name="banco"><br><br>
+            <label for="documento">Documento de Identidad:</label>
+            <input type="text" id="documento" name="documento"><br><br>
+            <label for="psePassword">Contraseña:</label>
+            <input type="password" id="psePassword" name="psePassword"><br><br>
+        </div>
+
+        <button type="submit">Recargar</button>
+    </form>
+
+    <script>
+        const metodoSelect = document.getElementById('metodo');
+        const tarjetaCampos = document.getElementById('tarjetaCampos');
+        const cuponCampos = document.getElementById('cuponCampos');
+        const pseCampos = document.getElementById('pseCampos');
+
+        metodoSelect.addEventListener('change', (e) => {
+            tarjetaCampos.style.display = 'none';
+            cuponCampos.style.display = 'none';
+            pseCampos.style.display = 'none';
+
+            if (e.target.value === 'tarjeta') {
+                tarjetaCampos.style.display = 'block';
+            } else if (e.target.value === 'cupon') {
+                cuponCampos.style.display = 'block';
+            } else if (e.target.value === 'pse') {
+                pseCampos.style.display = 'block';
+            }
+        });
+
+        document.getElementById('recargarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const monto = document.getElementById('monto').value;
+
+            // Enviamos la petición al servidor
+            const response = await fetch('/api/users/recargar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ monto })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Recarga de ${monto} fue exitosa.`);
+            } else {
+                alert('Error en la recarga: ' + data.message);
+            }
+        });
+    </script>
+</body>
+</html>

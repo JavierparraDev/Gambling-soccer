@@ -1,27 +1,100 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
 
-// Ruta para manejar el registro de usuarios
+// Ruta para el registro de usuarios (ya existente)
 router.post('/register', async (req, res) => {
     const { nombre, correo, contraseña } = req.body;
 
-    // Validamos que todos los campos estén completos
-    if (!nombre || !correo || !contraseña) {
-    return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    try {
+        // Verificar si el usuario ya existe
+        const existingUser = await User.findOne({ correo });
+        if (existingUser) {
+            return res.status(400).json({ message: 'El usuario ya existe' });
+        }
+
+        // Cifrar la contraseña
+        const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+        // Crear un nuevo usuario
+        const newUser = new User({
+            nombre,
+            correo,
+            contraseña: hashedPassword, // Guardamos la contraseña cifrada
+            saldo: 0 // Inicializar el saldo en 0
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: 'Usuario registrado con éxito' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+});
+
+// Ruta de inicio de sesión
+router.post('/login', async (req, res) => {
+    const { correo, contraseña } = req.body;
+
+    try {
+        // Busca al usuario en la base de datos por correo
+        const user = await User.findOne({ correo });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Compara la contraseña ingresada con la contraseña en la base de datos
+        const isMatch = await user.comparePassword(contraseña);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Contraseña incorrecta' });
+        }
+
+        // Guarda el userId en la sesión
+        req.session.userId = user._id;
+
+        // Devuelve los datos del usuario (nombre, correo, saldo)
+        res.json({
+            message: 'Inicio de sesión exitoso',
+            nombre: user.nombre,
+            correo: user.correo,
+            saldo: user.saldo
+        });
+    } catch (error) {
+        console.error('Error en el inicio de sesión:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+});
+
+
+// Ruta para recargar saldo
+router.post('/recargar', async (req, res) => {
+    const { monto } = req.body;
+
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Debe iniciar sesión para recargar saldo' });
     }
 
     try {
-    // Creamos un nuevo usuario
-    const newUser = new User({ nombre, correo, contraseña });
+        // Busca al usuario por su ID
+        const user = await User.findById(req.session.userId);
 
-    // Guardamos el usuario en la base de datos
-    await newUser.save();
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-    res.status(201).json({ message: 'Usuario registrado exitosamente' });
+        // Actualiza el saldo del usuario
+        user.saldo += parseFloat(monto);
+        await user.save();
+
+        // Mensaje de éxito que incluye el monto recargado
+        res.json({
+            message: `Recarga de ${monto} fue exitosa.`
+        });
     } catch (error) {
-    console.error('Error registrando el usuario:', error);
-    res.status(500).json({ message: 'Error registrando el usuario' });
+        console.error('Error al recargar saldo:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 });
 
