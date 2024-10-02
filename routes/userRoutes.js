@@ -13,15 +13,11 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'El usuario ya existe' });
         }
-
-        // Cifrar la contraseña
-        const hashedPassword = await bcrypt.hash(contraseña, 10);
-
         // Crear un nuevo usuario
         const newUser = new User({
             nombre,
             correo,
-            contraseña: hashedPassword, // Guardamos la contraseña cifrada
+            contraseña, // Guardamos la contraseña cifrada
             saldo: 0 // Inicializar el saldo en 0
         });
 
