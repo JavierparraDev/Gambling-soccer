@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
         const newUser = new User({
             nombre,
             correo,
-            contraseña,
+            contraseña, // Guardamos la contraseña cifrada
             saldo: 0 // Inicializar el saldo en 0
         });
 
