@@ -13,7 +13,6 @@ const footballRoutes = require('./routes/footballRoutes');
 const userRoutes = require('./routes/userRoutes'); 
 const betRoutes = require('./routes/betRoutes');
 
-
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -41,20 +40,30 @@ app.get('/', (req, res) => {
   res.send('Servidor Backend para Proyecto jajajaja Deportivo y Chatbot');
 });
 
-// registro de las rutas accesibles.
-app.use('/football', footballRoutes);
-app.use('/users', userRoutes); 
-app.use('/bets', betRoutes);
+// Rutas de fútbol (API-FOOTBALL)
+app.use('/api/football', footballRoutes);
 
-// Ruta para servir el widget de fútbol pruebas***
-// app.get('/widget', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'views', 'index.html'));
-// });
+app.use('/api/users', userRoutes); // Añadimos las rutas de usuarios a la aplicación
 
-// Ruta para servir el formulario de registro de usuarios  pruebas****
-// app.get('/register', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'views', 'register.html'));
-// });
+// Ruta para servir el widget de fútbol
+app.get('/widget', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+// Ruta para servir el formulario de registro de usuarios
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+
+// Ruta para servir el formulario de inicio de sesión
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+// Ruta para servir la vista de recarga de saldo
+app.get('/recargar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'recargar.html'));
+});
 
 // Mostrar todas las rutas disponibles
 app._router.stack.forEach(function(r) {

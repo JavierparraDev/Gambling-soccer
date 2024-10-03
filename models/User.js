@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0 // El saldo empieza en 0
     },
+    rol: {
+        type: String,
+        enum: ['usuario', 'administrador'], // Solo permite estos dos valores
+        default: 'usuario' // Valor por defecto
+    },
     fechaRegistro: {
         type: Date,
         default: Date.now

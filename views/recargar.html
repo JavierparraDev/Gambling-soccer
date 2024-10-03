@@ -47,6 +47,9 @@
 
         <button type="submit">Recargar</button>
     </form>
+    <!-- Botón de Volver -->
+    <br>
+    <button onclick="window.location.href='/login'">Volver</button>
 
     <script>
         const metodoSelect = document.getElementById('metodo');
@@ -72,14 +75,15 @@
             e.preventDefault();
 
             const monto = document.getElementById('monto').value;
+            const metodo = document.getElementById('metodo').value; // Añadir el método de pago
 
-            // Enviamos la petición al servidor
+            // Enviar la petición al servidor
             const response = await fetch('/api/users/recargar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ monto })
+                body: JSON.stringify({ monto, metodo }) // Incluir método en el body
             });
 
             const data = await response.json();
