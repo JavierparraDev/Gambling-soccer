@@ -22,6 +22,7 @@
         <p>Correo: <span id="correoUsuario"></span></p>
         <p>Saldo: <span id="saldoUsuario"></span> COP</p>
         <button id="recargarSaldoBtn">Recargar saldo</button>
+        <button id="apostarBtn">Ir a apuestas</button>
     </div>
 
     <script>
@@ -58,6 +59,11 @@
         // Redirigir a la vista de recarga de saldo al hacer clic en el botón
         document.getElementById('recargarSaldoBtn').addEventListener('click', () => {
             window.location.href = '/recargar'; // Ruta para la vista de recarga de saldo
+        });
+
+        // Redirigir a la vista de apuestas al hacer clic en el nuevo botón
+        document.getElementById('apostarBtn').addEventListener('click', () => {
+            window.location.href = '/betForm'; // Ruta para la vista de apuestas
         });
     </script>
 </body>

@@ -67,7 +67,7 @@ app.get('/recargar', (req, res) => {
 });
 
 // Ruta para servir el archivo HTML de apuesta
-app.get('/bet-form', (req, res) => {
+app.get('/betform', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'betForm.html'));
 });
 
