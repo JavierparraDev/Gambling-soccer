@@ -4,30 +4,69 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const router = express.Router();
 
-// Ruta para el registro de usuarios (ya existente)
+// Ruta para el registro de usuarios (ajustada con nuevos campos)
 router.post('/register', async (req, res) => {
-    const { nombre, correo, contraseña } = req.body;
+    const { nombres, apellidos, correo, contraseña, celular, tipoDocumento, numeroDocumento, fechaNacimiento, pais } = req.body;
 
     try {
         // Verificar si el usuario ya existe
-        const existingUser = await User.findOne({ correo });
+        const existingUser = await User.findOne({ $or: [{ correo }, { numeroDocumento }] });
         if (existingUser) {
-            return res.status(400).json({ message: 'El usuario ya existe' });
+            return res.status(400).json({ message: 'El usuario ya existe con este correo o número de documento' });
         }
 
-        // Crear un nuevo usuario
+        // Validar formato del celular
+        const celularRegex = /^\d{7,15}$/;
+        if (!celularRegex.test(celular)) {
+            return res.status(400).json({ message: 'Por favor, ingresa un número celular válido' });
+        }
+
+        // Validar tipo de documento
+        const tiposValidos = ['CC', 'CE', 'Pasaporte'];
+        if (!tiposValidos.includes(tipoDocumento)) {
+            return res.status(400).json({ message: 'Tipo de documento inválido' });
+        }
+
+        // Validar que el usuario sea mayor de edad
+        const fechaNacimientoDate = new Date(fechaNacimiento);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fechaNacimientoDate.getFullYear();
+        const diferenciaMeses = hoy.getMonth() - fechaNacimientoDate.getMonth();
+        const diferenciaDias = hoy.getDate() - fechaNacimientoDate.getDate();
+
+        if (diferenciaMeses < 0 || (diferenciaMeses === 0 && diferenciaDias < 0)) {
+            edad--;
+        }
+
+        if (edad < 18) {
+            return res.status(400).json({ message: 'Debes ser mayor de edad para registrarte' });
+        }
+
+        // Validar país (opcional, si tienes una lista de países)
+        if (typeof pais !== 'string' || pais.trim() === '') {
+            return res.status(400).json({ message: 'Por favor, ingresa un país válido' });
+        }
+
+        // Crear un nuevo usuario con los campos adicionales
         const newUser = new User({
-            nombre,
+            nombres,
+            apellidos,
             correo,
             contraseña, // Guardamos la contraseña cifrada
-            saldo: 0 // Inicializar el saldo en 0
+            saldo: 0, // Inicializar el saldo en 0
+            celular,
+            tipoDocumento,
+            numeroDocumento,
+            fechaNacimiento: fechaNacimientoDate,
+            pais
         });
 
         await newUser.save();
         res.status(201).json({ message: 'Usuario registrado con éxito' });
     } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor' });
-    }
+        console.error('Error en el registro de usuario:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
+    }    
 });
 
 // Ruta de inicio de sesión
@@ -52,10 +91,11 @@ router.post('/login', async (req, res) => {
         // Guarda el userId en la sesión
         req.session.userId = user._id;
 
-        // Devuelve los datos del usuario (nombre, correo, saldo)
+        // Devuelve los datos del usuario (nombres, apellidos, correo, saldo)
         res.json({
             message: 'Inicio de sesión exitoso',
-            nombre: user.nombre,
+            nombres: user.nombres,
+            apellidos: user.apellidos,
             correo: user.correo,
             saldo: user.saldo
         });

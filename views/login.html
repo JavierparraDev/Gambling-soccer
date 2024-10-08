@@ -45,7 +45,7 @@
             if (response.ok) {
                 // Mostrar la información del usuario y el botón de recarga
                 document.getElementById('userInfo').style.display = 'block';
-                document.getElementById('nombreUsuario').innerText = data.nombre;
+                document.getElementById('nombreUsuario').innerText = `${data.nombres} ${data.apellidos}`; // Concatenar nombres y apellidos
                 document.getElementById('correoUsuario').innerText = data.correo;
                 document.getElementById('saldoUsuario').innerText = data.saldo;
 
