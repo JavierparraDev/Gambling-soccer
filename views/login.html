@@ -23,6 +23,7 @@
         <p>Saldo: <span id="saldoUsuario"></span> COP</p>
         <button id="recargarSaldoBtn">Recargar saldo</button>
         <button id="apostarBtn">Ir a apuestas</button>
+        <button id="retirarSaldoBtn">Retirar saldo</button>
     </div>
 
     <script>
@@ -64,6 +65,11 @@
         // Redirigir a la vista de apuestas al hacer clic en el nuevo botón
         document.getElementById('apostarBtn').addEventListener('click', () => {
             window.location.href = '/betForm'; // Ruta para la vista de apuestas
+        });
+
+        // Redirigir a la vista de retiro al hacer clic en el nuevo botón
+        document.getElementById('retirarSaldoBtn').addEventListener('click', () => {
+        window.location.href = '/retiro'; // Ruta para la vista de retiro
         });
     </script>
 </body>

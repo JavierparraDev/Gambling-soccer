@@ -13,12 +13,11 @@ const transactionSchema = new mongoose.Schema({
     },
     metodoPago: {
         type: String,
-        enum: ['tarjeta', 'cupon', 'pse', 'saldo'],
         required: true
     },
     tipo: {
         type: String,
-        enum: ['recarga', 'apuestaGanada', 'apuestaPerdida', 'apuesta'],
+        enum: ['recarga', 'apuestaGanada', 'apuestaPerdida', 'apuesta', 'retiro'],
         required: true
     },
     fecha: {

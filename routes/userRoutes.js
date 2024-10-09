@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // Configuración para subir archivos PDF
 
 // Ruta para el registro de usuarios (ajustada con nuevos campos)
 router.post('/register', async (req, res) => {
@@ -142,6 +144,55 @@ router.post('/recargar', async (req, res) => {
         });
     } catch (error) {
         console.error('Error al recargar saldo:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+});
+
+// Ruta para solicitar retiro
+router.post('/retiro', upload.single('certificadoCuenta'), async (req, res) => {
+    const { monto, metodoRetiro, nombreBanco, numeroCuenta, titularCuenta, corresponsal } = req.body;
+
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Debe iniciar sesión para retirar saldo' });
+    }
+
+    try {
+        const user = await User.findById(req.session.userId);
+
+        if (!user || user.saldo < monto) {
+            return res.status(400).json({ message: 'Saldo insuficiente o usuario no encontrado' });
+        }
+
+        // Determinar el método de retiro y generar un código si es corresponsal
+        let metodo;
+        let codigoCorresponsal = null;
+
+        if (metodoRetiro === 'banco') {
+            metodo = `Banco: ${nombreBanco}, Titular: ${titularCuenta}, Cuenta: ${numeroCuenta}`;
+        } else if (metodoRetiro === 'corresponsal') {
+            metodo = `Corresponsal: ${corresponsal}`;
+            codigoCorresponsal = Math.random().toString(36).substring(2, 10).toUpperCase(); // Generar el código de retiro
+        }
+
+        // Guardar la transacción
+        const newTransaction = new Transaction({
+            userId: user._id,
+            monto: parseFloat(monto),
+            metodoPago: metodo,
+            tipo: 'retiro'
+        });
+        await newTransaction.save();
+
+        // Actualizar saldo del usuario
+        user.saldo -= parseFloat(monto);
+        await user.save();
+
+        res.json({
+            message: `Retiro por ${metodoRetiro} solicitado con éxito.`,
+            codigoCorresponsal // Enviar el código de corresponsal si existe
+        });
+    } catch (error) {
+        console.error('Error en el retiro:', error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
 });

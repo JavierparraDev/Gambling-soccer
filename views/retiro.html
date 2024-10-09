@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retiro de Dinero</title>
+</head>
+<body>
+    <h1>Retirar Dinero</h1>
+    <form id="retiroForm" enctype="multipart/form-data">
+        <label for="monto">Monto a retirar:</label>
+        <input type="number" id="monto" name="monto" min="1" required><br><br>
+
+        <label for="metodoRetiro">Método de retiro:</label>
+        <select id="metodoRetiro" name="metodoRetiro" required>
+            <option value="banco">Banco</option>
+            <option value="corresponsal">Corresponsal</option>
+        </select><br><br>
+
+        <!-- Campos dinámicos para banco -->
+        <div id="bancoCampos" style="display: none;">
+            <label for="nombreBanco">Nombre del banco:</label>
+            <input type="text" id="nombreBanco" name="nombreBanco"><br><br>
+
+            <label for="numeroCuenta">Número de cuenta:</label>
+            <input type="text" id="numeroCuenta" name="numeroCuenta"><br><br>
+
+            <label for="titularCuenta">Nombre del titular:</label>
+            <input type="text" id="titularCuenta" name="titularCuenta"><br><br>
+
+            <label for="certificadoCuenta">Certificado de cuenta (PDF):</label>
+            <input type="file" id="certificadoCuenta" name="certificadoCuenta" accept="application/pdf"><br><br>
+        </div>
+
+        <!-- Campos dinámicos para corresponsal -->
+        <div id="corresponsalCampos" style="display: none;">
+            <label for="corresponsal">Seleccione un corresponsal:</label>
+            <select id="corresponsal" name="corresponsal">
+                <option value="Efecty">Efecty</option>
+                <option value="Western Union">Western Union</option>
+                <option value="Supergiros">Supergiros</option>
+            </select><br><br>
+        </div>
+
+        <button type="submit">Solicitar Retiro</button>
+    </form>
+
+    <!-- Mensaje de código de retiro para corresponsal -->
+    <div id="codigoCorresponsalDiv" style="display: none;">
+        <p>Tu código de retiro es: <strong id="codigoRetiro">XXXXXX</strong></p>
+        <p>Utiliza este código en el corresponsal seleccionado para retirar tu dinero.</p>
+    </div>
+
+    <script>
+        // Mostrar campos según método de retiro
+        document.getElementById('metodoRetiro').addEventListener('change', function() {
+            const metodo = this.value;
+            document.getElementById('bancoCampos').style.display = metodo === 'banco' ? 'block' : 'none';
+            document.getElementById('corresponsalCampos').style.display = metodo === 'corresponsal' ? 'block' : 'none';
+        });
+
+        // Envío del formulario
+        document.getElementById('retiroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(document.getElementById('retiroForm'));
+            const response = await fetch('/api/users/retiro', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Retiro solicitado con éxito.');
+
+                // Mostrar código de corresponsal si existe
+                if (data.codigoCorresponsal) {
+                    document.getElementById('codigoRetiro').textContent = data.codigoCorresponsal;
+                    document.getElementById('codigoCorresponsalDiv').style.display = 'block';
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    </script>
+</body>
+</html>

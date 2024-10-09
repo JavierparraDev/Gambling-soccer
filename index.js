@@ -66,6 +66,11 @@ app.get('/recargar', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'recargar.html'));
 });
 
+// Ruta para servir la vista de retiro de saldo
+app.get('/retiro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'retiro.html'));
+});
+
 // Ruta para servir el archivo HTML de apuesta
 app.get('/betform', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'betForm.html'));
